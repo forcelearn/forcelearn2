@@ -3,8 +3,10 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const compression = require('compression');
 const axios = require('axios');
 const path = require('path');
+const blogRoutes = require('./routes/blogRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -15,15 +17,19 @@ const BLOG_DATA_URL = 'https://script.googleusercontent.com/macros/echo?user_con
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
+app.use(compression()); // Enable Gzip compression
 
 // Serve static files from the "assets" directory
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
-// Routes
-const blogRoutes = require('./routes/blogRoutes');
-
 // Use routes
 app.use('/api/blog', blogRoutes);
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Something went wrong!' });
+});
 
 // Start server
 app.listen(PORT, () => {

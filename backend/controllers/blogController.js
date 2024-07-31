@@ -1,50 +1,46 @@
-const blogData = require('../data/blogData');
+// controllers/blogController.js
 
-// Get all blogs
-exports.getAllBlogs = (req, res) => {
-  res.json(blogData);
-};
+const axios = require('axios');
+const BLOG_DATA_URL = 'https://script.googleusercontent.com/macros/echo?user_content_key=jq7LJ2vZAGA-mebIfjXvHlljXiNJKyoxqO36kl_awt2MWlMaG8iOKg0J7pqkIGzZCHOD9IPx4pdsdmarnoH5rogeDZGfDNVNm5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnLx3XoYJX-cKhhqWNaK1YqC_AXh73j6sjBaUK65phyr2JoFFIk_FxBOWM6FdnpwNcZCoyqB_9r_NceTdqgib85dchcifrka_u9z9Jw9Md8uu&lib=M-HmB2Uc7P1CZSxVVgWaDS27GdywWANqa';
 
-// Get blog by slug
-exports.getBlogBySlug = (req, res) => {
-  const blog = blogData.find(b => b.slug === req.params.slug);
-  if (blog) {
-    res.json(blog);
-  } else {
-    res.status(404).json({ message: 'Blog not found' });
+const getBlogs = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 12;
+  const skip = (page - 1) * limit;
+
+  try {
+    const response = await axios.get(BLOG_DATA_URL);
+    const blogs = response.data;
+
+    const totalBlogs = blogs.length;
+    const totalPages = Math.ceil(totalBlogs / limit);
+    const paginatedBlogs = blogs.slice(skip, skip + limit);
+
+    res.json({
+      data: paginatedBlogs,
+      totalPages,
+    });
+  } catch (error) {
+    console.error('Error fetching blog data:', error);
+    res.status(500).json({ message: 'Error fetching blog data' });
   }
 };
 
-// Get recent posts
-exports.getRecentPosts = (req, res) => {
-  const recentPosts = blogData.slice(0, 5);
-  res.json(recentPosts);
-};
-
-// Example getAdjacentPosts function
-exports.getAdjacentPosts = (req, res) => {
+const getBlogBySlug = async (req, res) => {
   const { slug } = req.params;
-  const blogIndex = blogData.findIndex(b => b.slug === slug);
 
-  if (blogIndex === -1) {
-    return res.status(404).json({ message: 'Blog not found' });
+  try {
+    const response = await axios.get(BLOG_DATA_URL);
+    const blogs = response.data;
+    const blog = blogs.find(blog => blog.slug === slug);
+
+    if (!blog) return res.status(404).json({ message: 'Blog not found' });
+
+    res.json(blog);
+  } catch (error) {
+    console.error('Error fetching blog by slug:', error);
+    res.status(500).json({ message: 'Error fetching blog by slug' });
   }
-
-  const previousPost = blogData[blogIndex - 1] || null;
-  const nextPost = blogData[blogIndex + 1] || null;
-
-  res.json({ previousPost, nextPost });
 };
 
-// Example searchBlogs function
-exports.searchBlogs = (req, res) => {
-  const query = req.query.q.toLowerCase();
-  const results = blogData.filter(blog =>
-    blog.title.toLowerCase().includes(query) ||
-    blog.description.toLowerCase().includes(query)||
-    blog.content.toLowerCase().includes(query)
-  );
-
-  res.json(results);
-};
-
+module.exports = { getBlogs, getBlogBySlug };
