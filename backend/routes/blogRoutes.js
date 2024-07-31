@@ -18,12 +18,12 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET a single blog by ID
-router.get('/:id', async (req, res) => {
+// GET a single blog by slug
+router.get('/:slug', async (req, res) => {
   try {
     const response = await axios.get(BLOG_DATA_URL);
     const blogs = response.data; // Adjust this based on the response structure
-    const blog = blogs.find(blog => blog.id === parseInt(req.params.id));
+    const blog = blogs.find(blog => blog.slug === req.params.slug);
     if (!blog) throw new Error('Blog not found');
     res.json(blog);
   } catch (err) {
