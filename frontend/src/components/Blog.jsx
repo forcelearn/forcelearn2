@@ -42,7 +42,7 @@ const Blog = () => {
     <section>
       <div className="container">
         <div className="row">
-          <h1 className="text-center mb-5">{WEBSITE_NAME}</h1>
+          {/*  <h1 className="text-center mb-5">{WEBSITE_NAME}</h1> */}
           {loading
             ? <Preloader /> // Show preloader while loading
             : (blogData && blogData.length > 0
