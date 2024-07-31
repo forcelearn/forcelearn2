@@ -9,10 +9,18 @@ const BLOG_DATA_URL = 'https://script.googleusercontent.com/macros/echo?user_con
 
 // GET all blogs
 router.get('/', async (req, res) => {
+  const { page = 1, limit = 12 } = req.query;
   try {
     const response = await axios.get(BLOG_DATA_URL);
     const blogs = response.data; // Adjust this based on the response structure
-    res.json(blogs);
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    const paginatedBlogs = blogs.slice(startIndex, endIndex);
+    res.json({
+      totalPages: Math.ceil(blogs.length / limit),
+      currentPage: parseInt(page),
+      data: paginatedBlogs,
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
