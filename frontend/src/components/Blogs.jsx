@@ -13,6 +13,7 @@ const Blog = () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/api/blog/`);
         setBlogData(response.data);
+        
       } catch (error) {
         console.error('Error fetching blog data:', error);
       }
@@ -42,7 +43,7 @@ const Blog = () => {
           {currentItems.map((item, index) => (
             <div className="col-md-3 mb-4" key={index}>
               <div className="card h-100">
-                <img src={`${API_BASE_URL}${item.imageUrl}`} className="card-img-top" alt={item.title} />
+                <img src={`${API_BASE_URL}${item.featureimage}`} className="card-img-top" alt={item.title} />
                 <div className="card-body">
                   <h5 className="font-sans-serif fw-bold fs-md-0 fs-lg-1">{item.title}</h5>
                   <p><strong>{item.tag}</strong></p>
